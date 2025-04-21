@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Михаил Клыков\\OneDrive\\Рабочий стол\\Debug\\Accomodations\\Accommodations\\Accommodations.csproj": {}
+    "D:\\С#\\TravelLine\\TravelLine\\Debug\\Accomodations\\Accommodations\\Accommodations.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Михаил Клыков\\OneDrive\\Рабочий стол\\Debug\\Accomodations\\Accommodations\\Accommodations.csproj": {
+    "D:\\С#\\TravelLine\\TravelLine\\Debug\\Accomodations\\Accommodations\\Accommodations.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Михаил Клыков\\OneDrive\\Рабочий стол\\Debug\\Accomodations\\Accommodations\\Accommodations.csproj",
+        "projectUniqueName": "D:\\С#\\TravelLine\\TravelLine\\Debug\\Accomodations\\Accommodations\\Accommodations.csproj",
         "projectName": "Accommodations",
-        "projectPath": "C:\\Users\\Михаил Клыков\\OneDrive\\Рабочий стол\\Debug\\Accomodations\\Accommodations\\Accommodations.csproj",
+        "projectPath": "D:\\С#\\TravelLine\\TravelLine\\Debug\\Accomodations\\Accommodations\\Accommodations.csproj",
         "packagesPath": "C:\\Users\\Михаил Клыков\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Михаил Клыков\\OneDrive\\Рабочий стол\\Debug\\Accomodations\\Accommodations\\obj\\",
+        "outputPath": "D:\\С#\\TravelLine\\TravelLine\\Debug\\Accomodations\\Accommodations\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
