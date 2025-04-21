@@ -1,60 +1,44 @@
-﻿class Program
+﻿using Zakaz_travel.Models;
+
+class Program
 {
-    static void Main()
+    static void Menu()
     {
-        string[] menu = { "Начать", "Помощь", "Выход" };
-        int select = 0;
-        while ( true ) // Тело программы
+        string[] options = { "Начать", "Помощь", "Выход" };
+        Action[] actions =
+        {
+    StartWebsite,
+    DisplayHelpMenu,
+    () => { return; }      // Просто возврат из анонимного метода
+    };
+
+        // Дополнительный код для отображения текущего игрока
+        Action customCode = () =>
         {
             Console.Clear();
             Console.Title = "Zakaz-travel.com";
             Console.WriteLine( "Выполнил: Клыков Михаил." );
             Console.WriteLine( "Выберите действие:" );
+        };
 
-            for ( int i = 0; i < menu.Length; i++ )
-            {
-                if ( i == select )
-                {
-                    Console.Write( "> " );
-                    Console.ForegroundColor = ConsoleColor.Blue;
-                }
-                else
-                {
-                    Console.Write( "  " );
-                }
-
-                Console.WriteLine( menu[ i ] );
-                Console.ResetColor();
-            }
-
-            var key = Console.ReadKey( true ).Key;
-
-            if ( key == ConsoleKey.UpArrow && select > 0 ) select--;
-            if ( key == ConsoleKey.DownArrow && select < menu.Length - 1 ) select++;
-
-            if ( key == ConsoleKey.Enter )
-            {
-                if ( select == 0 ) StartWebsite();
-                if ( select == 1 ) DisplayHelpMenu();
-                if ( select == 2 ) return;
-            }
-        }
+        CreateCustomMenu(
+            menuItems: options,
+            actions: actions,
+            selectedColor: ConsoleColor.Magenta,
+            title: null,
+            customCodeBeforeRender: customCode  // Передаем наш дополнительный код
+        );
     }
 
     static void StartWebsite() //Первоночальное окно оформление заказа
     {
-        string? nameProduct = string.Empty;
-        int quantity = 0;
-        string? nameUser = string.Empty;
-        string? deliveryAddress = string.Empty;
-
+        var order = new Order();
         while ( true )
         {
-            Decoration();
-            Console.Write( $"- Название товара: " );
-            nameProduct = Console.ReadLine();
+            order.DisplayToConsole();
+            order.ProductName = Console.ReadLine();
 
-            if ( string.IsNullOrWhiteSpace( nameProduct ) )
+            if ( string.IsNullOrWhiteSpace( order.ProductName ) )
             {
                 Console.WriteLine( "Ошибка: Название товара не может быть пустым. Пожалуйста, введите корректное название." );
                 Console.WriteLine( "Нажмите любую клавишу для повторного ввода..." );
@@ -65,16 +49,15 @@
                 break;
             }
         }
-
+        int quantity; // Добавил переменную
         while ( true )
         {
-            Decoration();
-            Console.WriteLine( $"- Название товара: {nameProduct}" );
-            Console.Write( "- Количество товара: " );
-            string? quantityInput = Console.ReadLine();
+            order.DisplayToConsole();
+            string input = Console.ReadLine();
 
-            if ( int.TryParse( quantityInput, out quantity ) && quantity > 0 )
+            if ( int.TryParse( input, out quantity ) && quantity > 0 )
             {
+                order.Quantity = quantity;
                 break;
             }
             else
@@ -87,13 +70,11 @@
 
         while ( true )
         {
-            Decoration();
-            Console.WriteLine( $"- Название товара: {nameProduct}" );
-            Console.WriteLine( $"- Количество товара: {quantity}" );
+            order.DisplayToConsole();
             Console.Write( "- Имя пользователя: " );
-            nameUser = Console.ReadLine();
+            order.UserName = Console.ReadLine();
 
-            if ( string.IsNullOrWhiteSpace( nameUser ) )
+            if ( string.IsNullOrWhiteSpace( order.UserName ) )
             {
                 Console.WriteLine( "Ошибка: Имя пользователя не может быть пустым. Пожалуйста, введите корректное имя." );
                 Console.WriteLine( "Нажмите любую клавишу для повторного ввода..." );
@@ -107,14 +88,10 @@
 
         while ( true )
         {
-            Decoration();
-            Console.WriteLine( $"- Название товара: {nameProduct}" );
-            Console.WriteLine( $"- Количество товара: {quantity}" );
-            Console.WriteLine( $"- Имя пользователя: {nameUser}" );
-            Console.Write( "- Адрес доставки: " );
-            deliveryAddress = Console.ReadLine();
+            order.DisplayToConsole();
+            order.DeliveryAddress = Console.ReadLine();
 
-            if ( string.IsNullOrWhiteSpace( deliveryAddress ) )
+            if ( string.IsNullOrWhiteSpace( order.DeliveryAddress ) )
             {
                 Console.WriteLine( "Ошибка: Адрес доставки не может быть пустым. Пожалуйста, введите корректный адрес." );
                 Console.WriteLine( "Нажмите любую клавишу для повторного ввода..." );
@@ -127,78 +104,33 @@
         }
 
         Console.ResetColor();
-        string quantityProduct = quantity.ToString();
-        Console.WriteLine( $"Здравствуйте, {nameUser}, вы заказали {quantityProduct} {nameProduct} на адрес {deliveryAddress}, все верно?" );
-        string[] menu = { "Да", "Нет" };
-        int select = 0;
-        int menuTopPosition = Console.CursorTop; // Запоминаем начальную позицию меню
-
-        while ( true )
+        Console.WriteLine( $"Здравствуйте, {order.UserName}, вы заказали {order.Quantity} {order.ProductName} на адрес {order.DeliveryAddress}, все верно?" );
+        string[] options = { "Да", "Нет" };
+        Action[] actions =
         {
-            int currentLeft = Console.CursorLeft;
-            int currentTop = Console.CursorTop;
-
-            Console.SetCursorPosition( 0, menuTopPosition );
-
-            for ( int i = 0; i < menu.Length; i++ )
-            {
-                Console.Write( new string( ' ', Console.WindowWidth ) );
-                Console.SetCursorPosition( 0, menuTopPosition + i );
-
-                if ( i == select )
-                {
-                    Console.Write( "> " );
-                    Console.ForegroundColor = ConsoleColor.Blue;
-                }
-                else
-                {
-                    Console.Write( "  " );
-                }
-
-                Console.Write( menu[ i ] );
-                Console.ResetColor();
-            }
-
-            Console.SetCursorPosition( currentLeft, currentTop );
-
-            var key = Console.ReadKey( true ).Key;
-
-            if ( key == ConsoleKey.UpArrow && select > 0 ) select--;
-            if ( key == ConsoleKey.DownArrow && select < menu.Length - 1 ) select++;
-            if ( key == ConsoleKey.LeftArrow ) select = 0;
-            if ( key == ConsoleKey.RightArrow ) select = 1;
-
-            if ( key == ConsoleKey.Enter )
-            {
-                Console.SetCursorPosition( 0, menuTopPosition );
-                for ( int i = 0; i < menu.Length; i++ )
-                {
-                    Console.Write( new string( ' ', Console.WindowWidth ) );
-                    if ( i < menu.Length - 1 )
-                        Console.SetCursorPosition( 0, menuTopPosition + i + 1 );
-                }
-
-                Console.SetCursorPosition( 0, menuTopPosition );
-
-                if ( select == 0 ) // если да
-                {
-                    DateTime todayDate = DateTime.Today;
+            () => {DateTime todayDate = DateTime.Today;
                     DateTime futureDate = todayDate.AddDays( 3 ); // +3 дня
-                    Console.WriteLine( $"{nameUser}! Ваш заказ {nameProduct} в количестве {quantityProduct} оформлен!" +
-                            $"\nОжидайте доставку по адресу {deliveryAddress} к {futureDate:dd.MM.yyyy}. Ваш Zakaz-travel.com!" );
-                }
-                else // иначе нет
-                {
-                    var updatedOrder = Editor.EditOrder( nameProduct, quantityProduct, nameUser, deliveryAddress );
-                }
+                    Console.WriteLine( $"{order.UserName}! Ваш заказ {order.ProductName} в количестве {order.Quantity} оформлен!" +
+                            $"\nОжидайте доставку по адресу {order.DeliveryAddress} к {futureDate:dd.MM.yyyy}. Ваш Zakaz-travel.com!" ); },
+            () => {var updatedOrder = Editor.EditOrder( order ); }
+        };
 
-                Console.ReadKey();
-                return;
-            }
-        }
+        Action customCode = () =>
+        {
+        };
+
+        CreateCustomMenu(
+            menuItems: options,
+            actions: actions,
+            selectedColor: ConsoleColor.Magenta,
+            title: null,
+            customCodeBeforeRender: customCode
+        );
+        Console.ReadKey();
+        return;
     }
 
-    static void DisplayHelpMenu() // Решил добавить информацию для корректного использование программы 
+    static void DisplayHelpMenu()
     {
         Console.BackgroundColor = ConsoleColor.Blue;
         Console.WriteLine( $@"
@@ -224,234 +156,89 @@
         Console.WriteLine( "\nНажмите любую клавишу для выхода..." );
         Console.ReadKey();
         Console.Clear();
-        StartWebsite();
+        Menu();
     }
 
-    static void Decoration()
+    static void CreateCustomMenu(
+    string[] menuItems,
+    Action[] actions,
+    ConsoleColor selectedColor = ConsoleColor.Green,
+    ConsoleColor defaultColor = ConsoleColor.Gray,
+    string title = null,
+    bool loopMenu = true,
+    string pointer = "> ",
+    string unselectedPointer = "  ",
+    Action customCodeBeforeRender = null )
     {
-        Console.Clear();
-        Console.ResetColor();
-        SiteName();
-        Console.ForegroundColor = ConsoleColor.Blue;
-        Console.WriteLine( "\n                                             Оформление заказа" );
-        Console.WriteLine( "                                           ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄" );
-        Console.ResetColor();
-        Console.BackgroundColor = ConsoleColor.DarkBlue;
-    }
+        if ( menuItems == null || menuItems.Length == 0 )
+            throw new ArgumentException( "Кнопки не могут быть пустыми" );
 
-    static void SiteName()
-    {
-        Console.Clear();
-        Console.BackgroundColor = ConsoleColor.Blue;
-        Console.WriteLine( $@"
+        if ( actions != null && menuItems.Length != actions.Length )
+            throw new ArgumentException( "Количество кнопок должно быть равно количеству методов" );
 
- /$$$$$$$$           /$$                                     /$$                                              /$$
-|_____ $$           | $$                                    | $$                                             | $$
-     /$$/   /$$$$$$ | $$   /$$  /$$$$$$  /$$$$$$$$         /$$$$$$    /$$$$$$   /$$$$$$  /$$    /$$  /$$$$$$ | $$
-    /$$/   |____  $$| $$  /$$/ |____  $$|____ /$$/ /$$$$$$|_  $$_/   /$$__  $$ /$$__  $$|  $$  /$$/ |____  $$| $$
-   /$$/     /$$$$$$$| $$$$$$/   /$$$$$$$   /$$$$/ |______/  | $$    | $$  \__/| $$$$$$$$ \  $$/$$/   /$$$$$$$| $$
-  /$$/     /$$__  $$| $$_  $$  /$$__  $$  /$$__/            | $$ /$$| $$      | $$_____/  \  $$$/   /$$__  $$| $$
- /$$$$$$$$|  $$$$$$$| $$ \  $$|  $$$$$$$ /$$$$$$$$          |  $$$$/| $$      |  $$$$$$$   \  $/   |  $$$$$$$| $$
-|________/ \_______/|__/  \__/ \_______/|________/           \___/  |__/       \_______/    \_/     \_______/|__/" );
-        Console.ResetColor();
-    }
-}
+        int selectedIndex = 0;
+        Console.CursorVisible = false;
 
-public static class Editor  //Сначала делал без класса , но слишком грамосткий получился и проблемы могут быть, поэтому так 
-{
-    static void Zakaz()
-    {
-        Console.Clear();
-        Console.BackgroundColor = ConsoleColor.Blue;
-        Console.WriteLine( $@"
-
- /$$$$$$$$           /$$                                     /$$                                              /$$
-|_____ $$           | $$                                    | $$                                             | $$
-     /$$/   /$$$$$$ | $$   /$$  /$$$$$$  /$$$$$$$$         /$$$$$$    /$$$$$$   /$$$$$$  /$$    /$$  /$$$$$$ | $$
-    /$$/   |____  $$| $$  /$$/ |____  $$|____ /$$/ /$$$$$$|_  $$_/   /$$__  $$ /$$__  $$|  $$  /$$/ |____  $$| $$
-   /$$/     /$$$$$$$| $$$$$$/   /$$$$$$$   /$$$$/ |______/  | $$    | $$  \__/| $$$$$$$$ \  $$/$$/   /$$$$$$$| $$
-  /$$/     /$$__  $$| $$_  $$  /$$__  $$  /$$__/            | $$ /$$| $$      | $$_____/  \  $$$/   /$$__  $$| $$
- /$$$$$$$$|  $$$$$$$| $$ \  $$|  $$$$$$$ /$$$$$$$$          |  $$$$/| $$      |  $$$$$$$   \  $/   |  $$$$$$$| $$
-|________/ \_______/|__/  \__/ \_______/|________/           \___/  |__/       \_______/    \_/     \_______/|__/" );
-        Console.ResetColor();
-    }
-
-    public static (string name, string quantity, string user, string address) EditOrder(
-        string nameProduct, string quantityProduct, string nameUser, string deliveryAddress )
-    {
-        string[] parameter = {
-            "    - Название товара",
-            "    - Количество товара",
-            "    - Имя пользователя",
-            "    - Адрес доставки",
-            "    - Оформить заказ"
-        };
-
-        int field = 0; //Буфер
-
-        while ( true )
+        do
         {
-            Zakaz();
-            Console.WriteLine( "Редактирование данных заказа:" );
-            Console.WriteLine( "Вверх/Вниз - выбор пункта | Enter - выбрать" );
-            Console.WriteLine( "--------------------------------------------------" );
+            Console.Clear();
 
-            for ( int i = 0; i < parameter.Length; i++ ) // Подсветка нажатие не чтоб по красоте :)
+            // Выполнение дополнительного кода перед отрисовкой
+            customCodeBeforeRender?.Invoke();
+
+            // Вывод заголовка
+            if ( !string.IsNullOrEmpty( title ) )
             {
-                if ( i == field )
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine( title + "\n" );
+                Console.ForegroundColor = defaultColor;
+            }
+
+            // Вывод пунктов меню
+            for ( int i = 0; i < menuItems.Length; i++ )
+            {
+                if ( i == selectedIndex )
                 {
-                    Console.ForegroundColor = ConsoleColor.Blue;
-                    Console.Write( "> " );
+                    Console.Write( pointer );
+                    Console.ForegroundColor = selectedColor;
                 }
                 else
                 {
-                    Console.Write( "  " );
+                    Console.Write( unselectedPointer );
+                    Console.ForegroundColor = defaultColor;
                 }
 
-                if ( i < parameter.Length - 1 )
-                {
-                    string meaning = Value( i, nameProduct, quantityProduct, nameUser, deliveryAddress );
-                    Console.WriteLine( $"{parameter[ i ]}: {meaning}" );
-                }
-                else
-                {
-                    Console.WriteLine( $"{parameter[ i ]}" ); //Для "оформить заказ"
-                }
+                Console.WriteLine( menuItems[ i ] );
                 Console.ResetColor();
             }
 
-            var key = Console.ReadKey( true );
+            // Обработка ввода
+            var key = Console.ReadKey( true ).Key;
 
-            switch ( key.Key )
+            switch ( key )
             {
-                case ConsoleKey.Escape:
-                    return (nameProduct, quantityProduct, nameUser, deliveryAddress);
-
-                case ConsoleKey.UpArrow when field > 0:
-                    field--;
+                case ConsoleKey.UpArrow:
+                    selectedIndex = ( selectedIndex - 1 + menuItems.Length ) % menuItems.Length;
                     break;
-
-                case ConsoleKey.DownArrow when field < parameter.Length - 1:
-                    field++;
+                case ConsoleKey.DownArrow:
+                    selectedIndex = ( selectedIndex + 1 ) % menuItems.Length;
                     break;
-
                 case ConsoleKey.Enter:
-                    if ( field == parameter.Length - 1 )
+                    if ( actions != null && actions.Length > selectedIndex )
                     {
                         Console.Clear();
-                        TheEnd( nameProduct, quantityProduct, nameUser, deliveryAddress );
-                        Console.WriteLine( "\nНажмите любую клавишу для завершения..." );
-                        Console.ReadKey();
-                        return (nameProduct, quantityProduct, nameUser, deliveryAddress);
+                        actions[ selectedIndex ]?.Invoke();
+
+                        if ( !loopMenu ) return;
                     }
                     else
                     {
-                        string newValue = EditField( field, parameter, nameProduct, quantityProduct, nameUser, deliveryAddress );
-
-                        switch ( field ) // - это тут обновляю поле
-                        {
-                            case 0: nameProduct = newValue; break;
-                            case 1: quantityProduct = newValue; break;
-                            case 2: nameUser = newValue; break;
-                            case 3: deliveryAddress = newValue; break;
-                        }
+                        return;
                     }
                     break;
+                case ConsoleKey.Escape:
+                    return;
             }
-        }
-    }
-
-    private static void TheEnd( string product, string count, string name, string address )
-    {
-        Zakaz();
-        DateTime todayDate = DateTime.Today;
-        DateTime futureDate = todayDate.AddDays( 3 ); // +3 дня
-        Console.WriteLine( $"{name}! Ваш заказ {product} в количестве {count} оформлен!" +
-            $"\nОжидайте доставку по адресу {address} к {futureDate:dd.MM.yyyy}. Ваш Zakaz-travel.com!\"" );
-    }
-
-    private static string Value( int fieldIndex, string name, string qty, string customer, string address ) //получает
-    {
-        return fieldIndex switch
-        {
-            0 => name,
-            1 => qty,
-            2 => customer,
-            3 => address,
-            _ => ""
-        };
-    }
-
-    private static string EditField( int fieldIndex, string[] fields, string name,
-        string qty, string customer, string address ) // редактирует 
-    {
-        string currentValue = fieldIndex switch
-        {
-            0 => name,
-            1 => qty,
-            2 => customer,
-            3 => address,
-            _ => ""
-        };
-
-        Zakaz();
-        Console.WriteLine( $"РЕДАКТИРОВАНИЕ: {fields[ fieldIndex ].Trim()}" );
-        Console.WriteLine( "--------------------------------------------------" );
-        Console.WriteLine( $"Текущее значение: {currentValue}" );
-        Console.WriteLine( "Введите новое значение (или нажмите Enter чтобы оставить текущее):" );
-        Console.Write( "> " );
-
-        string? newValue = Console.ReadLine();
-        if ( fieldIndex == 1 )
-        {
-            if ( string.IsNullOrWhiteSpace( newValue ) )
-            {
-                return currentValue;
-            }
-
-            if ( int.TryParse( newValue, out int parsedQty ) && parsedQty >= 0 )
-            {
-                return parsedQty.ToString();
-            }
-            else
-            {
-                bool validQtyInput = false;
-                while ( !validQtyInput )
-                {
-                    Console.Clear();
-                    Zakaz();
-                    Console.WriteLine( $"РЕДАКТИРОВАНИЕ: {fields[ fieldIndex ].Trim()}" );
-                    Console.WriteLine( "--------------------------------------------------" );
-                    Console.WriteLine( $"Текущее значение: {currentValue}" );
-                    Console.WriteLine( "Введите новое значение (или нажмите Enter чтобы оставить текущее):" );
-                    Console.Write( "> " );
-                    string? QtyInput = Console.ReadLine();
-
-                    if ( string.IsNullOrWhiteSpace( QtyInput ) )
-                    {
-                        return currentValue;
-                    }
-
-                    if ( int.TryParse( QtyInput, out int Qty ) && Qty >= 0 )
-                    {
-                        currentValue = Qty.ToString();
-                        validQtyInput = true;
-                    }
-                    else
-                    {
-                        Console.WriteLine( "Неверный ввод. Пожалуйста, введите целое положительное число." );
-                    }
-                }
-                return currentValue;
-            }
-        }
-        else if ( string.IsNullOrWhiteSpace( newValue ) )
-        {
-            return currentValue;
-        }
-        else
-        {
-            return newValue;
-        }
+        } while ( true );
     }
 }
