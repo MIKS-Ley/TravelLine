@@ -114,6 +114,7 @@ public static class Editor
                         ShowConfirmation( order );
                         Console.WriteLine( "\nНажмите любую клавишу для завершения..." );
                         Console.ReadKey();
+                        Zakaz_travelMenu.Menu();
                     }
                     else
                     {
@@ -207,7 +208,7 @@ public static class Editor
         while ( true )
         {
             displayAction();
-            string input = Console.ReadLine();
+            string? input = Console.ReadLine();
 
             if ( int.TryParse( input, out int result ) && result > 0 )
             {
@@ -223,7 +224,7 @@ public static class Editor
         while ( true )
         {
             displayAction();
-            string input = Console.ReadLine();
+            string? input = Console.ReadLine();
 
             if ( !string.IsNullOrWhiteSpace( input ) )
             {
