@@ -38,7 +38,7 @@ public static class Editor
         Console.WriteLine( "\nНажмите любую клавишу для выхода..." );
         Console.ReadKey();
         Console.Clear();
-
+        ZakazTravelMenu.Menu();
     }
 
     public static void Zakaz()
@@ -114,7 +114,7 @@ public static class Editor
                         ShowConfirmation( order );
                         Console.WriteLine( "\nНажмите любую клавишу для завершения..." );
                         Console.ReadKey();
-                        Zakaz_travelMenu.Menu();
+                        ZakazTravelMenu.Menu();
                     }
                     else
                     {

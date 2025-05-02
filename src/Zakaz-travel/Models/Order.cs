@@ -7,27 +7,22 @@
         public string? UserName { get; set; }
         public string? DeliveryAddress { get; set; }
 
-        public void DisplayToConsole()
+        public void DisplayToConsole( bool showPrompts = false )
         {
             Decoration();
-
             Console.ForegroundColor = ConsoleColor.Blue;
 
-            if ( !string.IsNullOrWhiteSpace( ProductName ) )
+            var orderInfo = new[]
             {
-                Console.WriteLine( $"- Название товара: {ProductName}" );
-            }
-            if ( Quantity.HasValue )
+                $"- Название товара: {ProductName}",
+                $"- Количество товара: {Quantity}",
+                $"- Имя пользователя: {UserName}",
+                $"- Адрес доставки: {DeliveryAddress}"
+            };
+
+            foreach ( var info in orderInfo )
             {
-                Console.WriteLine( $"- Количество товара: {Quantity}" );
-            }
-            if ( !string.IsNullOrWhiteSpace( UserName ) )
-            {
-                Console.WriteLine( $"- Имя пользователя: {UserName}" );
-            }
-            if ( !string.IsNullOrWhiteSpace( DeliveryAddress ) )
-            {
-                Console.WriteLine( $"- Адрес доставки: {DeliveryAddress}" );
+                Console.WriteLine( info );
             }
 
             Console.ResetColor();
