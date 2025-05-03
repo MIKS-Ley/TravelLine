@@ -1,4 +1,6 @@
-﻿namespace Zakaz_travel.Models
+﻿using System;
+
+namespace Zakaz_travel.Models
 {
     public class MenuOperation
     {
@@ -10,9 +12,7 @@
             Text = text;
             Action = action;
         }
-    }
-    public static class MenuConstructor
-    {
+
         public static void CreateMenu(
             MenuOperation[] operations,
             string? title = null,

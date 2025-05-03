@@ -7,7 +7,7 @@
         public string? UserName { get; set; }
         public string? DeliveryAddress { get; set; }
 
-        public void DisplayToConsole( bool showPrompts = false )
+        public void DisplayToConsole()
         {
             Decoration();
             Console.ForegroundColor = ConsoleColor.Blue;
