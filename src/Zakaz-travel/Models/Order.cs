@@ -1,4 +1,6 @@
-﻿namespace Zakaz_travel.Models
+﻿using Zakaz_travel.Menu;
+
+namespace Zakaz_travel.Models
 {
     public class Order
     {
@@ -30,7 +32,7 @@
 
         private void Decoration()
         {
-            Editor.Zakaz();
+            LogoOrderManager.Zakaz();
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.WriteLine( "\n                                             Оформление заказа" );
             Console.WriteLine( "                                           ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄" );
