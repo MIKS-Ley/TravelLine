@@ -10,6 +10,7 @@ namespace Zakaz_travel
 {
     public static class OrderManagerUI
     {
+
         public static void ShowConfirmation( Order order )
         {
             LogoOrderManager.Zakaz();

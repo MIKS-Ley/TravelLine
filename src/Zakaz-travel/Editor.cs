@@ -158,27 +158,27 @@ public static class Editor
     private static Order CollectOrderInformation()
     {
         var order = new Order();
-        var steps = new OrderSteps.OrderStep[]
+        var steps = new OrderStep[]
         {
-            new OrderSteps.OrderStep(
+            new OrderStep(
                 "Введите Название товара:",
                 value => order.ProductName = value,
                 value => !string.IsNullOrWhiteSpace(value),
                 "Ошибка: Название товара не может быть пустым."
             ),
-            new OrderSteps.OrderStep(
+            new OrderStep(
                 "Введите количество товара:",
                 value => order.Quantity = int.Parse(value),
                 value => int.TryParse(value, out int qty) && qty > 0,
                 "Ошибка: Введите целое число больше 0!"
             ),
-            new OrderSteps.OrderStep(
+            new OrderStep(
                 "Введите Имя пользователя:",
                 value => order.UserName = value,
                 value => !string.IsNullOrWhiteSpace(value),
                 "Ошибка: Имя пользователя не может быть пустым."
             ),
-            new OrderSteps.OrderStep(
+            new OrderStep(
                 "Введите Адрес доставки:",
                 value => order.DeliveryAddress = value,
                 value => !string.IsNullOrWhiteSpace(value),
@@ -194,7 +194,7 @@ public static class Editor
         return order;
     }
 
-    private static void ProcessOrderStep( Order order, OrderSteps.OrderStep step )
+    private static void ProcessOrderStep( Order order, OrderStep step )
     {
         bool isValid = false;
         while ( !isValid )

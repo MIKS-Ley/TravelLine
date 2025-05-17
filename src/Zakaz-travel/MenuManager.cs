@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Zakaz_travel.Menu;
+﻿using Zakaz_travel.Menu;
 
 namespace Zakaz_travel.Models
 {
@@ -69,6 +64,7 @@ namespace Zakaz_travel.Models
                 }
             } while ( true );
         }
+
         public static void Menu()
         {
             var menumanager = new[]
