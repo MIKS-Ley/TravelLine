@@ -1,6 +1,4 @@
-﻿using Zakaz_travel.Menu;
-
-namespace Zakaz_travel.Models
+﻿namespace Zakaz_travel.Models
 {
     public class MenuManager
     {
@@ -70,13 +68,13 @@ namespace Zakaz_travel.Models
             var menumanager = new[]
             {
                 new MenuOperation("Начать", Editor.StartOrderProcess),
-                new MenuOperation("Помощь", HelpMenu.DisplayHelpMenu),
+                new MenuOperation("Помощь", OrderManagerUI.DisplayHelpMenu),
                 new MenuOperation("Выход", () => Environment.Exit(0))
             };
 
             Action header = () =>
             {
-                LogoOrderManager.Zakaz();
+                OrderManagerUI.Zakaz();
                 Console.Title = "Zakaz-travel.com";
                 Console.WriteLine( "Выполнил: Клыков Михаил." );
                 Console.WriteLine( "Выберите действие:" );

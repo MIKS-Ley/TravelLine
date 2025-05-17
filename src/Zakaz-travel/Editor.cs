@@ -1,5 +1,4 @@
 ﻿using Zakaz_travel;
-using Zakaz_travel.Menu;
 using Zakaz_travel.Models;
 
 public static class Editor
@@ -18,7 +17,7 @@ public static class Editor
 
         while ( true )
         {
-            LogoOrderManager.Zakaz();
+            OrderManagerUI.Zakaz();
             Console.WriteLine( "Редактирование данных заказа:" );
             Console.WriteLine( "Вверх/Вниз - выбор пункта | Enter - выбрать" );
             Console.WriteLine( "--------------------------------------------------" );
@@ -65,11 +64,10 @@ public static class Editor
                 case ConsoleKey.Enter:
                     if ( fieldID == parameters.Length - 1 )
                     {
-                        Console.WriteLine( LogoOrderManager.ZakazText );
+                        Console.WriteLine( OrderManagerUI.ZakazText );
                         OrderManagerUI.ShowConfirmation( order );
                         Console.WriteLine( "\nНажмите любую клавишу для завершения..." );
                         Console.ReadKey();
-                        MenuManager.Menu();
                     }
                     else
                     {
@@ -111,7 +109,7 @@ public static class Editor
 
         while ( true )
         {
-            LogoOrderManager.Zakaz();
+            OrderManagerUI.Zakaz();
             Console.WriteLine( $"РЕДАКТИРОВАНИЕ: {fields[ fieldIndex ].Trim()}" );
             Console.WriteLine( "--------------------------------------------------" );
             Console.WriteLine( $"Текущее значение: {currentValue}" );
@@ -151,13 +149,13 @@ public static class Editor
 
     public static void StartOrderProcess()
     {
-        var order = CollectOrderInformation();
+        Order order = CollectOrderInformation();
         ConfirmOrder( order );
     }
 
     private static Order CollectOrderInformation()
     {
-        var order = new Order();
+        Order order = new Order();
         var steps = new OrderStep[]
         {
             new OrderStep(
@@ -223,13 +221,13 @@ public static class Editor
     {
         var options = new[]
         {
-            new MenuOperation("Да", () => OrderManagerUI.FinalizeOrder(order)),
-            new MenuOperation("Нет", () => { EditOrder(order); MenuManager.Menu(); })
+            new MenuOperation( "Да", () => OrderManagerUI.FinalizeOrder( order ) ),
+            new MenuOperation( "Нет", () => { EditOrder( order ); MenuManager.Menu(); } )
         };
 
         Action confirmationHeader = () =>
         {
-            LogoOrderManager.Zakaz();
+            OrderManagerUI.Zakaz();
             Console.ResetColor();
             Console.WriteLine( $"Здравствуйте, {order.UserName}, вы заказали " +
                             $"{order.Quantity} {order.ProductName} на адрес " +
