@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Json diff</title>
+		<link rel="stylesheet" href="./src/styles/common.css" />
+	</head>
+	<body>
+		<header class="header">
+			<div class="headerContainer">
+				<span id="logo" class="logo">JSON-DIFF</span>
+				<div class="LogIn">
+					<span class="authorization">Hello, <span id="userName"></span>!</span>
+					<button class="buttonLogin" id="buttonLogin">Log in</button>
+				</div>
+			</div>
+		</header>
+
+		<main>
+			<!-- Главная страница -->
+			<section class="homePage" id="homePage">
+				<p class="descriptionText">
+					Compare
+					<span class="text">two JSON objects</span>
+					and see the
+					<span class="text1">differences</span>
+				</p>
+				<button id="buttonStart" class="buttonStart" hidden>Start</button>
+			</section>
+
+			<!-- Форма авторизации -->
+			<section class="loginPage" id="loginPage" hidden>
+				<div class="login-box">
+					<h2>Login Form</h2>
+					<form id="loginForm">
+						<label for="login">Login:</label>
+						<input type="text" id="login" name="login" />
+						<div class="error" role="alert"></div>
+						<button type="submit">Sign In</button>
+					</form>
+				</div>
+			</section>
+
+			<!-- Секция сравнения -->
+			<section class="start" id="startPage" hidden>
+				<div class="content">
+					<form class="main-form">
+						<div class="json-container">
+							<label class="json-title" for="oldJson">Old json</label>
+							<div class="json-content">
+								<textarea class="json-textarea" id="oldJson" rows="10" cols="50">
+{
+  "timeout": 20,
+  "verbose": true,
+  "host": "google.com"
+}
+
+								</textarea>
+								<div class="error-message" id="oldJson-error"></div>
+							</div>
+						</div>
+
+						<div class="json-container">
+							<label class="json-title" for="newJson">New json</label>
+							<div class="json-content">
+								<textarea class="json-textarea" id="newJson" rows="10" cols="50">
+{
+  "timeout": 50,
+  "proxy": "888.888.88.88",
+  "host": "google.com"
+}                
+
+								</textarea>
+								<div class="error-message" id="newJson-error"></div>
+							</div>
+						</div>
+
+						<button class="compare-button" type="button">Show difference</button>
+					</form>
+					<div class="result-json"></div>
+				</div>
+			</section>
+		</main>
+
+		<footer class="footer">
+			<p class="footerText">Copyright 2025 ©</p>
+		</footer>
+
+		<script src="./src/login.js" type="module"></script>
+		<script src="./src/start.js" type="module"></script>
+		<script src="./src/json-diff.js" type="module"></script>
+		<script src="./src/json-logic.js" type="module"></script>
+	</body>
+</html>
