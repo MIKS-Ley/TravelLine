@@ -1,8 +1,8 @@
 ﻿using Zakaz_travel.Models;
 
-class Program
+internal class Program
 {
-    static void Main( string[] args )
+    private static void Main( string[] args )
     {
         MenuManager.Menu();
     }

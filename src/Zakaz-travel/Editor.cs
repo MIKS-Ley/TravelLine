@@ -1,5 +1,6 @@
-﻿using Zakaz_travel;
-using Zakaz_travel.Models;
+﻿using Zakaz_travel.Models;
+
+namespace Zakaz_travel;
 
 public static class Editor
 {
@@ -46,7 +47,7 @@ public static class Editor
                 Console.ResetColor();
             }
 
-            var key = Console.ReadKey( true );
+            ConsoleKeyInfo key = Console.ReadKey( true );
 
             switch ( key.Key )
             {
@@ -68,6 +69,8 @@ public static class Editor
                         OrderManagerUI.ShowConfirmation( order );
                         Console.WriteLine( "\nНажмите любую клавишу для завершения..." );
                         Console.ReadKey();
+                        MenuManager.Menu();
+                        return order;
                     }
                     else
                     {
@@ -156,35 +159,35 @@ public static class Editor
     private static Order CollectOrderInformation()
     {
         Order order = new Order();
-        var steps = new OrderStep[]
+        OrderStep[] steps = new OrderStep[]
         {
             new OrderStep(
                 "Введите Название товара:",
                 value => order.ProductName = value,
-                value => !string.IsNullOrWhiteSpace(value),
+                value => !string.IsNullOrWhiteSpace( value ),
                 "Ошибка: Название товара не может быть пустым."
             ),
             new OrderStep(
                 "Введите количество товара:",
-                value => order.Quantity = int.Parse(value),
+                value => order.Quantity = int.Parse( value ),
                 value => int.TryParse(value, out int qty) && qty > 0,
                 "Ошибка: Введите целое число больше 0!"
             ),
             new OrderStep(
                 "Введите Имя пользователя:",
                 value => order.UserName = value,
-                value => !string.IsNullOrWhiteSpace(value),
+                value => !string.IsNullOrWhiteSpace( value ),
                 "Ошибка: Имя пользователя не может быть пустым."
             ),
             new OrderStep(
                 "Введите Адрес доставки:",
                 value => order.DeliveryAddress = value,
-                value => !string.IsNullOrWhiteSpace(value),
+                value => !string.IsNullOrWhiteSpace( value ),
                 "Ошибка: Адрес доставки не может быть пустым."
             )
         };
 
-        foreach ( var step in steps )
+        foreach ( OrderStep step in steps )
         {
             ProcessOrderStep( order, step );
         }
@@ -202,10 +205,12 @@ public static class Editor
                 OrderManagerUI.DisplayOrderScreen( order );
                 Console.Write( step.Prompt );
 
-                var input = Console.ReadLine()?.Trim() ?? string.Empty;
+                string input = Console.ReadLine()?.Trim() ?? string.Empty;
 
                 if ( !step.Validator( input ) )
+                {
                     throw new ArgumentException( step.ErrorMessage );
+                }
 
                 step.ValueSetter( input );
                 isValid = true;
@@ -219,7 +224,7 @@ public static class Editor
 
     private static void ConfirmOrder( Order order )
     {
-        var options = new[]
+        MenuOperation[] options = new[]
         {
             new MenuOperation( "Да", () => OrderManagerUI.FinalizeOrder( order ) ),
             new MenuOperation( "Нет", () => { EditOrder( order ); MenuManager.Menu(); } )

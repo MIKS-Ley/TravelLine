@@ -13,7 +13,9 @@
             Action? customCodeBeforeRender = null )
         {
             if ( operations == null || operations.Length == 0 )
+            {
                 throw new ArgumentException( "Операции меню не могут быть пустыми" );
+            }
 
             int selectedIndex = 0;
             Console.CursorVisible = false;
@@ -54,7 +56,7 @@
                     case ConsoleKey.Enter:
                         Console.Clear();
                         operations[ selectedIndex ].Action.Invoke();
-                        if ( !loopMenu ) return;
+                        if ( !loopMenu ) { return; }
                         break;
 
                     case ConsoleKey.Escape:
@@ -65,11 +67,11 @@
 
         public static void Menu()
         {
-            var menumanager = new[]
+            MenuOperation[] menumanager = new[]
             {
-                new MenuOperation("Начать", Editor.StartOrderProcess),
-                new MenuOperation("Помощь", OrderManagerUI.DisplayHelpMenu),
-                new MenuOperation("Выход", () => Environment.Exit(0))
+                new MenuOperation( "Начать", Editor.StartOrderProcess ),
+                new MenuOperation( "Помощь", OrderManagerUI.DisplayHelpMenu ),
+                new MenuOperation( "Выход", () => Environment.Exit( 0 ) )
             };
 
             Action header = () =>
@@ -87,5 +89,4 @@
             );
         }
     }
-
 }

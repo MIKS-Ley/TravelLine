@@ -4,6 +4,16 @@ namespace Zakaz_travel
 {
     public static class OrderManagerUI
     {
+        public const string ZakazText = @"
+ /$$$$$$$$           /$$                                     /$$                                              /$$
+|_____ $$           | $$                                    | $$                                             | $$
+     /$$/   /$$$$$$ | $$   /$$  /$$$$$$  /$$$$$$$$         /$$$$$$    /$$$$$$   /$$$$$$  /$$    /$$  /$$$$$$ | $$
+    /$$/   |____  $$| $$  /$$/ |____  $$|____ /$$/ /$$$$$$|_  $$_/   /$$__  $$ /$$__  $$|  $$  /$$/ |____  $$| $$
+   /$$/     /$$$$$$$| $$$$$$/   /$$$$$$$   /$$$$/ |______/  | $$    | $$  \__/| $$$$$$$$ \  $$/$$/   /$$$$$$$| $$
+  /$$/     /$$__  $$| $$_  $$  /$$__  $$  /$$__/            | $$ /$$| $$      | $$_____/  \  $$$/   /$$__  $$| $$
+ /$$$$$$$$|  $$$$$$$| $$ \  $$|  $$$$$$$ /$$$$$$$$          |  $$$$/| $$      |  $$$$$$$   \  $/   |  $$$$$$$| $$
+|________/ \_______/|__/  \__/ \_______/|________/           \___/  |__/       \_______/    \_/     \_______/|__/";
+
         public static void DisplayHelpMenu()
         {
             Console.BackgroundColor = ConsoleColor.Blue;
@@ -27,27 +37,17 @@ namespace Zakaz_travel
                                            С наилучшими пожеланиями ваш Zakaz-travel!   
 ");
             Console.ResetColor();
-            Console.WriteLine("\nНажмите любую клавишу для выхода...");
+            Console.WriteLine( "\nНажмите любую клавишу для выхода..." );
             Console.ReadKey();
             Console.Clear();
             MenuManager.Menu();
         }
 
-        public const string ZakazText = @"
- /$$$$$$$$           /$$                                     /$$                                              /$$
-|_____ $$           | $$                                    | $$                                             | $$
-     /$$/   /$$$$$$ | $$   /$$  /$$$$$$  /$$$$$$$$         /$$$$$$    /$$$$$$   /$$$$$$  /$$    /$$  /$$$$$$ | $$
-    /$$/   |____  $$| $$  /$$/ |____  $$|____ /$$/ /$$$$$$|_  $$_/   /$$__  $$ /$$__  $$|  $$  /$$/ |____  $$| $$
-   /$$/     /$$$$$$$| $$$$$$/   /$$$$$$$   /$$$$/ |______/  | $$    | $$  \__/| $$$$$$$$ \  $$/$$/   /$$$$$$$| $$
-  /$$/     /$$__  $$| $$_  $$  /$$__  $$  /$$__/            | $$ /$$| $$      | $$_____/  \  $$$/   /$$__  $$| $$
- /$$$$$$$$|  $$$$$$$| $$ \  $$|  $$$$$$$ /$$$$$$$$          |  $$$$/| $$      |  $$$$$$$   \  $/   |  $$$$$$$| $$
-|________/ \_______/|__/  \__/ \_______/|________/           \___/  |__/       \_______/    \_/     \_______/|__/";
-
         public static void Zakaz()
         {
             Console.Clear();
             Console.BackgroundColor = ConsoleColor.Blue;
-            Console.WriteLine(ZakazText);
+            Console.WriteLine( ZakazText );
             Console.ResetColor();
         }
 
@@ -56,8 +56,8 @@ namespace Zakaz_travel
             Zakaz();
             DateTime todayDate = DateTime.Today;
             DateTime futureDate = todayDate.AddDays( 3 );
-            Console.WriteLine( $"{order.UserName}! Ваш заказ {order.ProductName} в количестве {order.Quantity} оформлен!" +
-                $"\nОжидайте доставку по адресу {order.DeliveryAddress} к {futureDate:dd.MM.yyyy}. Ваш Zakaz-travel.com!" );
+            Console.WriteLine( $"{ order.UserName }! Ваш заказ { order.ProductName } в количестве { order.Quantity } оформлен!" +
+                $"\nОжидайте доставку по адресу { order.DeliveryAddress } к {futureDate:dd.MM.yyyy}. Ваш Zakaz-travel.com!" );
         }
 
         public static void ShowError( string message )
@@ -78,7 +78,7 @@ namespace Zakaz_travel
 
         public static void FinalizeOrder( Order order )
         {
-            OrderManagerUI.ShowConfirmation( order );
+            ShowConfirmation( order );
             Console.ReadKey();
             MenuManager.Menu();
         }
