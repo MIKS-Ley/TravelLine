@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace Perevodchik
+﻿namespace Perevodchik
 {
     public static class DictionaryEditor
     {
@@ -67,6 +63,7 @@ namespace Perevodchik
             ConsoleExtensions( "\nНажмите Enter чтобы продолжить...", ConsoleColor.Green );
             Console.ReadLine();
         }
+
         public static void ConsoleExtensions( this string text, ConsoleColor color )
         {
             var originalColor = Console.ForegroundColor;
@@ -74,6 +71,5 @@ namespace Perevodchik
             Console.WriteLine( text );
             Console.ForegroundColor = originalColor;
         }
-
     }
 }

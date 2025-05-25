@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Spectre.Console;
 
 namespace Perevodchik
 {
@@ -7,8 +6,8 @@ namespace Perevodchik
     {
         public static void ShowMainMenu()
         {
-            string[] options = { "Переводчик", "Редактор словаря", "Помощь", "Выход" };
-            Action[] actions =
+            var options = new List<string> { "Переводчик", "Редактор словаря", "Помощь", "Выход" };
+            var actions = new List<Action>
             {
                 Translator.StartTranslator,
                 ShowDictionaryEditorMenu,
@@ -16,158 +15,97 @@ namespace Perevodchik
                 () => Environment.Exit(0)
             };
 
-            Action customCode = () =>
-            {
-                Console.Clear();
-                Console.Title = "Translator";
-                Editor.DisplayHeader( "Выполнил: Клыков Михаил.\nВыберите действие:" );
-            };
+            var panel = new Panel( "[green]Выполнил: Клыков Михаил.[/]" )
+                .Border( BoxBorder.Rounded )
+                .Header( "[bold]Translator[/]" )
+                .HeaderAlignment( Justify.Center );
 
-            CreateCustomMenu(
-                menuItems: options,
-                actions: actions,
-                selectedColor: ConsoleColor.Green,
-                title: null,
-                customCodeBeforeRender: customCode
-            );
+            while ( true )
+            {
+                AnsiConsole.Clear();
+                AnsiConsole.Write( panel );
+
+                var choice = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title( "Выберите действие:" )
+                        .PageSize( 10 )
+                        .HighlightStyle( Style.Parse( "green" ) )
+                        .AddChoices( options ) );
+
+                int selectedIndex = options.IndexOf( choice );
+                actions[ selectedIndex ]?.Invoke();
+            }
         }
 
-        public static void ShowDictionaryEditorMenu()
+        private static void ShowDictionaryEditorMenu()
         {
-            string[] options = { "Удалить словарь", "Очистить словарь", "Добавить слова", "Просмотр словаря", "Выход" };
-            Action[] actions = {
-        () => DictionaryEditor.DeleteDictionary(Translator.RussianToEnglish, Translator.EnglishToRussian),
-        () => DictionaryEditor.ClearDictionary(Translator.RussianToEnglish, Translator.EnglishToRussian),
-        AddNewWordInteraction,
-        DictionaryEditor.DisplayDictionary,
-        ShowMainMenu
-    };
+            var options = new List<string>
+            {
+                "Удалить словарь",
+                "Очистить словарь",
+                "Добавить слова",
+                "Просмотр словаря",
+                "Назад"
+            };
 
-            Action customCode = () => Editor.SiteName();
-            CreateCustomMenu(
-                menuItems: options,
-                actions: actions,
-                customCodeBeforeRender: customCode
-            );
+            var actions = new List<Action>
+            {
+                () => DictionaryEditor.DeleteDictionary(Translator.RussianToEnglish, Translator.EnglishToRussian),
+                () => DictionaryEditor.ClearDictionary(Translator.RussianToEnglish, Translator.EnglishToRussian),
+                AddNewWordInteraction,
+                DictionaryEditor.DisplayDictionary,
+                ShowMainMenu
+            };
+
+            while ( true )
+            {
+                AnsiConsole.Clear();
+                Editor.SiteName();
+
+                var choice = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title( "Редактор словаря:" )
+                        .PageSize( 10 )
+                        .HighlightStyle( Style.Parse( "green" ) )
+                        .AddChoices( options ) );
+
+                int selectedIndex = options.IndexOf( choice );
+                actions[ selectedIndex ]?.Invoke();
+            }
         }
 
         private static void AddNewWordInteraction()
         {
-            Console.Clear();
+            AnsiConsole.Clear();
             Editor.SiteName();
 
-            var word = GetUserInput( "Введите новое слово: " );
+            var word = AnsiConsole.Ask<string>( "Введите новое слово:" ).Trim();
             if ( string.IsNullOrWhiteSpace( word ) ) return;
 
-            if ( Translator.RussianToEnglish.ContainsKey( word ) || Translator.EnglishToRussian.ContainsKey( word ) )
+            if ( Translator.RussianToEnglish.ContainsKey( word ) ||
+                Translator.EnglishToRussian.ContainsKey( word ) )
             {
-                Console.WriteLine( "Это слово уже существует в словаре.", ConsoleColor.Yellow );
-                Editor.WaitForContinue();
+                AnsiConsole.MarkupLine( "[yellow]Это слово уже существует в словаре.[/]" );
+                AnsiConsole.Console.Input.ReadKey( true );
                 return;
             }
 
-            var translation = GetUserInput( "Введите перевод: " );
+            var translation = AnsiConsole.Ask<string>( "Введите перевод:" ).Trim();
             if ( string.IsNullOrWhiteSpace( translation ) ) return;
 
             if ( Translator.AddNewWord( word, prompt =>
             {
-                Console.Write( prompt );
-                return Console.ReadLine();
+                return AnsiConsole.Ask<string>( prompt );
             } ) )
             {
-                Console.WriteLine( "Слово добавлено в словарь.", ConsoleColor.Green );
+                AnsiConsole.MarkupLine( "[green]Слово добавлено в словарь.[/]" );
             }
             else
             {
-                Console.WriteLine( "Не удалось добавить слово.", ConsoleColor.Red );
+                AnsiConsole.MarkupLine( "[red]Не удалось добавить слово.[/]" );
             }
 
-            Editor.WaitForContinue();
-        }
-
-        private static string GetUserInput( string prompt )
-        {
-            Console.Write( prompt );
-            return Console.ReadLine()?.Trim();
-        }
-
-        public static void CreateCustomMenu(
-            string[] menuItems,
-            Action[] actions,
-            ConsoleColor selectedColor = ConsoleColor.Green,
-            ConsoleColor defaultColor = ConsoleColor.Gray,
-            string title = null,
-            bool loopMenu = true,
-            string pointer = "> ",
-            string unselectedPointer = "  ",
-            Action customCodeBeforeRender = null )
-        {
-            if ( menuItems == null || menuItems.Length == 0 )
-                throw new ArgumentException( "Кнопки не могут быть пустыми" );
-
-            if ( actions != null && menuItems.Length != actions.Length )
-                throw new ArgumentException( "Количество кнопок должно быть равно количеству методов" );
-
-            int selectedIndex = 0;
-            Console.CursorVisible = false;
-
-            do
-            {
-                Console.Clear();
-
-                customCodeBeforeRender?.Invoke();
-
-                if ( !string.IsNullOrEmpty( title ) )
-                {
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine( title + "\n" );
-                    Console.ForegroundColor = defaultColor;
-                }
-
-                for ( int i = 0; i < menuItems.Length; i++ )
-                {
-                    if ( i == selectedIndex )
-                    {
-                        Console.Write( pointer );
-                        Console.ForegroundColor = selectedColor;
-                    }
-                    else
-                    {
-                        Console.Write( unselectedPointer );
-                        Console.ForegroundColor = defaultColor;
-                    }
-
-                    Console.WriteLine( menuItems[ i ] );
-                    Console.ResetColor();
-                }
-
-                var key = Console.ReadKey( true ).Key;
-
-                switch ( key )
-                {
-                    case ConsoleKey.UpArrow:
-                        selectedIndex = ( selectedIndex - 1 + menuItems.Length ) % menuItems.Length;
-                        break;
-                    case ConsoleKey.DownArrow:
-                        selectedIndex = ( selectedIndex + 1 ) % menuItems.Length;
-                        break;
-                    case ConsoleKey.Enter:
-                        if ( actions != null && actions.Length > selectedIndex )
-                        {
-                            Console.Clear();
-                            actions[ selectedIndex ]?.Invoke();
-
-                            if ( !loopMenu ) return;
-                        }
-                        else
-                        {
-                            return;
-                        }
-                        break;
-                    case ConsoleKey.Escape:
-                        return;
-                }
-            } while ( true );
+            AnsiConsole.Console.Input.ReadKey( true );
         }
     }
 }

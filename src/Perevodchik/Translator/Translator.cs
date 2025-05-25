@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using Spectre.Console;
 
 namespace Perevodchik
 {
@@ -30,7 +27,7 @@ namespace Perevodchik
             else
             {
                 File.WriteAllText( FilePath, $"Файл был создан: {DateTime.Today:dd.MM.yyyy}\n" );
-                Console.WriteLine( $"Файл '{FilePath}' был создан." );
+                AnsiConsole.MarkupLine( $"[yellow]Файл '{FilePath}' был создан.[/]" );
             }
         }
 
@@ -38,11 +35,12 @@ namespace Perevodchik
         {
             while ( true )
             {
+                AnsiConsole.Clear();
                 Editor.SiteName();
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine( "Выход клавиша -> '-'" );
-                Console.Write( "Введите слово для перевода: " );
-                var input = Console.ReadLine();
+
+                var input = AnsiConsole.Prompt(
+                    new TextPrompt<string>( "[green]Введите слово для перевода (или '-' для выхода):[/]" )
+                        .PromptStyle( "green" ) );
 
                 if ( input == "-" ) break;
 
@@ -55,50 +53,74 @@ namespace Perevodchik
             }
         }
 
-        public static void TranslateWord( string word )
+        private static void TranslateWord( string word )
         {
+            var content = new Text( "" );
+
             if ( RussianToEnglish.TryGetValue( word, out var translation ) )
             {
-                Console.WriteLine( $"Перевод '{word}': {translation}" );
+                content = new Text( $"Английский: {translation}", new Style( Color.Green ) );
             }
             else if ( EnglishToRussian.TryGetValue( word, out var reverseTranslation ) )
             {
-                Console.WriteLine( $"Перевод '{word}': {reverseTranslation}" );
+                content = new Text( $"Русский: {reverseTranslation}", new Style( Color.Green ) );
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine( $"Слово '{word}' не найдено в словаре." );
-                Console.ResetColor();
+                content = new Text( $"Слово '{word}' не найдено в словаре.", new Style( Color.Red ) );
+
+                var notFoundPanel = new Panel(
+                        new Rows(
+                            content,
+                            new Text( "" ) )
+                    )
+                    .Border( BoxBorder.Rounded )
+                    .Header( $" Перевод слова {word} " )
+                    .HeaderAlignment( Justify.Center );
+
+                AnsiConsole.Write( notFoundPanel );
 
                 if ( Editor.AskToAddWord( word ) )
                 {
                     AddNewWord( word );
                 }
+                return;
             }
+
+            var panel = new Panel(
+                    new Rows(
+                        content,
+                        new Text( "" ) )
+                )
+                .Border( BoxBorder.Rounded )
+                .Header( $" Перевод слова {word} " )
+                .HeaderAlignment( Justify.Center );
+
+            AnsiConsole.Write( panel );
         }
+
         public static bool AddNewWord( string word = null, Func<string, string> getTranslation = null )
         {
-            getTranslation ??= prompt =>
-            {
-                Console.Write( prompt );
-                return Console.ReadLine()?.Trim();
-            };
+            getTranslation ??= prompt => AnsiConsole.Ask<string>( $"[green]{prompt}[/]" );
 
-            word ??= getTranslation( "Введите новое слово: " );
-            var translation = getTranslation( "Введите перевод: " );
+            word ??= getTranslation( "Введите новое слово:" );
+            var translation = getTranslation( "Введите перевод:" );
 
             if ( !RussianToEnglish.ContainsKey( word ) && !EnglishToRussian.ContainsKey( translation ) )
             {
                 RussianToEnglish[ word ] = translation;
                 EnglishToRussian[ translation ] = word;
                 SaveWordToFile( word, translation );
+
+                AnsiConsole.MarkupLine( $"[green]Слово '{word}' успешно добавлено в словарь![/]" );
                 return true;
             }
+
+            AnsiConsole.MarkupLine( $"[red]Слово или перевод уже существуют в словаре.[/]" );
             return false;
         }
 
-        public static void SaveWordToFile( string word, string translation )
+        private static void SaveWordToFile( string word, string translation )
         {
             File.AppendAllText( FilePath, $"{word}:{translation}\n" );
         }
