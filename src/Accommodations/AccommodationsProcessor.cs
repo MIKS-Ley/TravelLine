@@ -5,8 +5,8 @@ namespace Accommodations;
 
 public static class AccommodationsProcessor
 {
-    private static BookingService _bookingService = new();
-    private static Dictionary<int, ICommand> _executedCommands = new();
+    private static readonly BookingService _bookingService = new();
+    private static readonly Dictionary<int, ICommand> _executedCommands = new();
     private static int s_commandIndex = 0;
 
     public static void Run()
@@ -27,13 +27,13 @@ public static class AccommodationsProcessor
             {
                 ProcessCommand( input );
             }
-            catch ( ArgumentException ex )
+            catch ( Exception ex ) when ( ex is ArgumentException or InvalidOperationException or InvalidDataException )
             {
                 Console.WriteLine( $"Error: {ex.Message}" );
             }
         }
     }
-    //Вынес код из кейсов в отдельные методы
+
     private static void ProcessCommand( string input )
     {
         string[] parts = input.Split( ' ' );
@@ -42,23 +42,23 @@ public static class AccommodationsProcessor
         switch ( commandName )
         {
             case "book":
-                CommandBook( parts );
+                ProcessBookCommand( parts );
                 break;
 
             case "cancel":
-                CommandCancel( parts );
+                ProcessCancelCommand( parts );
                 break;
 
             case "undo":
-                CommandUndo( parts );
+                ProcessUndoCommand();
                 break;
 
             case "find":
-                CommandFind( parts );
+                ProcessFindCommand( parts );
                 break;
 
             case "search":
-                CommandSearch( parts );
+                ProcessSearchCommand( parts );
                 break;
 
             default:
@@ -67,37 +67,35 @@ public static class AccommodationsProcessor
         }
     }
 
-    private static void CommandBook( string[] parts )
+    private static void ProcessBookCommand( string[] parts )
     {
         if ( parts.Length != 6 )
         {
-            throw new ArgumentException( "Invalid number of arguments for booking." );
+            throw new ArgumentException( "Invalid number of arguments for booking. Expected format: 'book <UserId> <Category> <StartDate> <EndDate> <Currency>'" );
         }
 
-        if ( !int.TryParse( parts[ 1 ], out int userID ) ) // Проверка ID
+        if ( !int.TryParse( parts[ 1 ], out int userId ) )
         {
-            throw new ArgumentException( "Invalid User ID." );
+            throw new ArgumentException( "Invalid User ID. Must be an integer." );
         }
 
-        // Проверка на корректный формат дат
-        var startDate = СonvectorDateTime( parts[ 1 ], "Wrong start date." );
-        var endDate = СonvectorDateTime( parts[ 2 ], "Wrong end date." );
-        // Проверка что дата заселения меньше даты отъезда
+        DateTime startDate = ParseDate( parts[ 3 ], "Invalid start date format. Use format like '3/30/2024'." );
+        DateTime endDate = ParseDate( parts[ 4 ], "Invalid end date format. Use format like '4/1/2024'." );
+
         if ( startDate >= endDate )
         {
-            throw new ArgumentException( "Invalid date input" );
+            throw new ArgumentException( "Start date must be before end date." );
         }
 
-        // Изменил парсинг Валюты
         if ( !Enum.TryParse( parts[ 5 ], true, out CurrencyDto currency ) )
         {
-            string availableCurrency = string.Join( ", ", Enum.GetNames( typeof( CurrencyDto ) ) );
-            throw new ArgumentException( $"Invalid currency: '{parts[ 5 ]}'. Use the available list of currencies: {availableCurrency.ToLower()}" );
+            string availableCurrencies = string.Join( ", ", Enum.GetNames( typeof( CurrencyDto ) ) );
+            throw new ArgumentException( $"Invalid currency: '{parts[ 5 ]}'. Available currencies: {availableCurrencies.ToLower()}" );
         }
 
         BookingDto bookingDto = new()
         {
-            UserId = userID,
+            UserId = userId,
             Category = parts[ 2 ],
             StartDate = startDate,
             EndDate = endDate,
@@ -107,85 +105,82 @@ public static class AccommodationsProcessor
         BookCommand bookCommand = new( _bookingService, bookingDto );
         bookCommand.Execute();
         _executedCommands.Add( ++s_commandIndex, bookCommand );
-        Console.WriteLine( "Booking command run is successful." );
-
+        Console.WriteLine( "Booking created successfully." );
     }
 
-    private static void CommandCancel( string[] parts )
+    private static void ProcessCancelCommand( string[] parts )
     {
         if ( parts.Length != 2 )
         {
-            throw new ArgumentException( "Invalid number of arguments for canceling." );
+            throw new ArgumentException( "Invalid number of arguments for canceling. Expected format: 'cancel <BookingId>'" );
         }
 
-        //Изменил парсинг Руководства
         if ( !Guid.TryParse( parts[ 1 ], out Guid bookingId ) )
         {
-            throw new ArgumentException( "Invalid ID for booking." );
+            throw new ArgumentException( "Invalid booking ID format. Must be a valid GUID." );
         }
+
         CancelBookingCommand cancelCommand = new( _bookingService, bookingId );
         cancelCommand.Execute();
         _executedCommands.Add( ++s_commandIndex, cancelCommand );
-        Console.WriteLine( "Cancellation command run is successful." );
-
+        Console.WriteLine( "Booking cancelled successfully." );
     }
 
-    private static void CommandUndo( string[] parts )
+    private static void ProcessUndoCommand()
     {
-        // Проверка на пустой лист
         if ( _executedCommands.Count == 0 )
         {
-            throw new InvalidOperationException( "User command history is empty" );
+            throw new InvalidOperationException( "No commands to undo." );
         }
-        // Проверка индекса при отмене
-        if ( s_commandIndex < 1 )
-        {
-            throw new ArgumentException( "Сancellation cannot be made" );
-        }
+
         _executedCommands[ s_commandIndex ].Undo();
         _executedCommands.Remove( s_commandIndex );
         s_commandIndex--;
-        Console.WriteLine( "Last command undone." );
-
+        Console.WriteLine( "Last command undone successfully." );
     }
 
-    private static void CommandFind( string[] parts )
+    private static void ProcessFindCommand( string[] parts )
     {
         if ( parts.Length != 2 )
         {
             throw new ArgumentException( "Invalid arguments for 'find'. Expected format: 'find <BookingId>'" );
         }
-        //Изменил парсинг Руководство
+
         if ( !Guid.TryParse( parts[ 1 ], out Guid id ) )
         {
-            Console.WriteLine( "Invalid id for booking." );
-            return;
+            throw new ArgumentException( "Invalid booking ID format. Must be a valid GUID." );
         }
+
         FindBookingByIdCommand findCommand = new( _bookingService, id );
         findCommand.Execute();
     }
 
-    private static void CommandSearch( string[] parts )
+    private static void ProcessSearchCommand( string[] parts )
     {
         if ( parts.Length != 4 )
         {
             throw new ArgumentException( "Invalid arguments for 'search'. Expected format: 'search <StartDate> <EndDate> <CategoryName>'" );
         }
-        // Проверка на даты
-        var startDate = СonvectorDateTime( parts[ 1 ], "Wrong start date." );
-        var endDate = СonvectorDateTime( parts[ 2 ], "Wrong end date." );
+
+        DateTime startDate = ParseDate( parts[ 1 ], "Invalid start date format." );
+        DateTime endDate = ParseDate( parts[ 2 ], "Invalid end date format." );
+
+        if ( startDate >= endDate )
+        {
+            throw new ArgumentException( "Start date must be before end date." );
+        }
 
         string categoryName = parts[ 3 ];
         SearchBookingsCommand searchCommand = new( _bookingService, startDate, endDate, categoryName );
         searchCommand.Execute();
     }
 
-    private static DateTime СonvectorDateTime( string value, string errorMessage )
+    private static DateTime ParseDate( string dateString, string errorMessage )
     {
-        if ( !DateTime.TryParse( value, out DateTime dateTimeParsed ) )
+        if ( !DateTime.TryParse( dateString, out DateTime result ) )
         {
             throw new InvalidDataException( errorMessage );
         }
-        return dateTimeParsed;
+        return result;
     }
 }

@@ -17,7 +17,7 @@ public class CancelBookingCommand( IBookingService bookingService, Guid bookingI
         }
         else
         {
-            // Заменил на выброс исключения
+            // Р—Р°РјРµРЅРёР» РЅР° РІС‹Р±СЂРѕСЃ РёСЃРєР»СЋС‡РµРЅРёСЏ
             throw new ArgumentException( $"Booking {bookingId} not found." );
         }
     }

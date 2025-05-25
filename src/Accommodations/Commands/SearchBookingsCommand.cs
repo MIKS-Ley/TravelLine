@@ -25,7 +25,7 @@ public class SearchBookingsCommand(
             Console.WriteLine( "No bookings found." );
         }
     }
-    // Заменил {nameof(GetType)} на Search
+    // Р—Р°РјРµРЅРёР» {nameof(GetType)} РЅР° Search
     public void Undo()
     {
         Console.WriteLine( $"Undo operation is not supported for Search." );

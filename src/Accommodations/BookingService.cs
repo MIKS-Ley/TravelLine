@@ -23,14 +23,14 @@ public class BookingService : IBookingService
 
     public Booking Book( int userId, string categoryName, DateTime startDate, DateTime endDate, Currency currency )
     {
-        // проверка на карректность начальной даты бронирования. 
+        // РїСЂРѕРІРµСЂРєР° РЅР° РєР°СЂСЂРµРєС‚РЅРѕСЃС‚СЊ РЅР°С‡Р°Р»СЊРЅРѕР№ РґР°С‚С‹ Р±СЂРѕРЅРёСЂРѕРІР°РЅРёСЏ. 
         if ( startDate < DateTime.Now.Date )
         {
             throw new ArgumentException( "Start date cannot be earlier than now date" );
         }
         /*
-        Эта проверка уже есть в CommandBook() 
-        и тут была опечатка вместо < надо <= 
+        Р­С‚Р° РїСЂРѕРІРµСЂРєР° СѓР¶Рµ РµСЃС‚СЊ РІ CommandBook() 
+        Рё С‚СѓС‚ Р±С‹Р»Р° РѕРїРµС‡Р°С‚РєР° РІРјРµСЃС‚Рѕ < РЅР°РґРѕ <= 
         if (endDate <= startDate)
         {
             throw new ArgumentException("End date cannot be earlier than start date");
@@ -54,7 +54,7 @@ public class BookingService : IBookingService
             throw new ArgumentException( "User not found" );
         }
 
-        //  Добавил что нельзя бронировать номре меньше чем на день
+        //  Р”РѕР±Р°РІРёР» С‡С‚Рѕ РЅРµР»СЊР·СЏ Р±СЂРѕРЅРёСЂРѕРІР°С‚СЊ РЅРѕРјСЂРµ РјРµРЅСЊС€Рµ С‡РµРј РЅР° РґРµРЅСЊ
         int days = ( endDate - startDate ).Days;
         if ( days == 0 )
         {
@@ -115,7 +115,7 @@ public class BookingService : IBookingService
         IQueryable<Booking> query = _bookings.AsQueryable();
 
         query = query.Where( b => b.StartDate >= startDate );
-        //тут была опечатка вместо < надо <= 
+        //С‚СѓС‚ Р±С‹Р»Р° РѕРїРµС‡Р°С‚РєР° РІРјРµСЃС‚Рѕ < РЅР°РґРѕ <= 
         query = query.Where( b => b.EndDate <= endDate );
 
         if ( !string.IsNullOrEmpty( categoryName ) )
@@ -129,16 +129,22 @@ public class BookingService : IBookingService
     public decimal CalculateCancellationPenaltyAmount( Booking booking )
     {
         /*
-        Эта проверка уже есть выше в методе CancelBooking
+        Р­С‚Р° РїСЂРѕРІРµСЂРєР° СѓР¶Рµ РµСЃС‚СЊ РІС‹С€Рµ РІ РјРµС‚РѕРґРµ CancelBooking
         if (booking.StartDate <= DateTime.Now)
         {
             throw new ArgumentException("Start date cannot be earlier than now date");
         }
         */
-        // опечатка должно быть на оборот изночально: DateTime.Now - booking.StartDate а далжно: booking.StartDate - DateTime.Now
+        // РѕРїРµС‡Р°С‚РєР° РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РЅР° РѕР±РѕСЂРѕС‚ РёР·РЅРѕС‡Р°Р»СЊРЅРѕ: DateTime.Now - booking.StartDate Р° РґР°Р»Р¶РЅРѕ: booking.StartDate - DateTime.Now
         int daysBeforeArrival = ( booking.StartDate - DateTime.Now ).Days;
 
-        return 5000.0m / daysBeforeArrival;
+        // Р”РѕР±Р°РІРёР» Р»РѕРіРёРєСѓ РїРѕР»СѓС‡РµРЅРёСЏ С€С‚СЂР°С„РѕРІ Р·Р° РѕС‚РјРµРЅСѓ Р·Р°РєР°Р·Р°
+        return daysBeforeArrival switch
+        {
+            <= 0 => 5000.0m, // РџРѕР»РЅС‹Р№ С€С‚СЂР°С„, РµСЃР»Рё РѕС‚РјРµРЅР° РІ РґРµРЅСЊ Р·Р°РµР·РґР° РёР»Рё РїРѕСЃР»Рµ
+            1 => 2500.0m,    // 50% С€С‚СЂР°С„Р° Р·Р° РѕС‚РјРµРЅСѓ Р·Р° 1 РґРµРЅСЊ
+            _ => 5000.0m / daysBeforeArrival // РџСЂРѕРіСЂРµСЃСЃРёРІРЅС‹Р№ С€С‚СЂР°С„
+        };
     }
 
     private static decimal GetCurrencyRate( Currency currency )
@@ -159,11 +165,12 @@ public class BookingService : IBookingService
     {
         decimal cost = baseRate * days;
 
-        /* Исправил формулу
-        была: decimal totalCost = cost - cost * CalculateDiscount(userId) * currencyRate;
-        стало: decimal totalCost = ( cost - cost * CalculateDiscount( userId ) ) / currencyRate;
+        /* РСЃРїСЂР°РІРёР» С„РѕСЂРјСѓР»Сѓ
+        Р±С‹Р»Р°: decimal totalCost = cost - cost * CalculateDiscount(userId) * currencyRate;
+        СЃС‚Р°Р»Рѕ: decimal totalCost = cost * ( 1 - CalculateDiscount( userId ) ) / currencyRate;
+        Р»РёР±Рѕ: decimal totalCost = ( cost - cost * CalculateDiscount( userId ) ) / currencyRate;
         */
-        decimal totalCost = ( cost - cost * CalculateDiscount( userId ) ) / currencyRate;
+        decimal totalCost = cost * ( 1 - CalculateDiscount( userId ) ) / currencyRate;
         return totalCost;
     }
 }
