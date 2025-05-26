@@ -4,7 +4,7 @@ namespace Zakaz_travel;
 
 public static class Editor
 {
-    public static Order EditOrder( Order order )
+    public static void EditOrder( Order order )
     {
         string[] parameters = {
             "    - Название товара",
@@ -52,7 +52,7 @@ public static class Editor
             switch ( key.Key )
             {
                 case ConsoleKey.Escape:
-                    return order;
+                    return;
 
                 case ConsoleKey.UpArrow when fieldID > 0:
                     fieldID--;
@@ -70,7 +70,7 @@ public static class Editor
                         Console.WriteLine( "\nНажмите любую клавишу для завершения..." );
                         Console.ReadKey();
                         MenuManager.Menu();
-                        return order;
+                        return;
                     }
                     else
                     {
