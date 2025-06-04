@@ -40,7 +40,6 @@ namespace Zakaz_travel
             Console.WriteLine( "\nНажмите любую клавишу для выхода..." );
             Console.ReadKey();
             Console.Clear();
-            MenuManager.Menu();
         }
 
         public static void Zakaz()
@@ -76,11 +75,10 @@ namespace Zakaz_travel
             order.DisplayToConsole();
         }
 
-        public static void FinalizeOrder( Order order )
+        public static void DecorationOrder( Order order )
         {
             ShowConfirmation( order );
             Console.ReadKey();
-            MenuManager.Menu();
         }
     }
 }

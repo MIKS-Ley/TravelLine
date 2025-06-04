@@ -70,7 +70,7 @@
             MenuOperation[] menumanager = new[]
             {
                 new MenuOperation( "Начать", Editor.StartOrderProcess ),
-                new MenuOperation( "Помощь", OrderManagerUI.DisplayHelpMenu ),
+                new MenuOperation( "Помощь", () => { OrderManagerUI.DisplayHelpMenu(); MenuManager.Menu(); } ),
                 new MenuOperation( "Выход", () => Environment.Exit( 0 ) )
             };
 
