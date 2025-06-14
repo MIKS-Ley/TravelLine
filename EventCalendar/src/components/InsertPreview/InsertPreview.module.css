@@ -1,0 +1,21 @@
+.insertPreview {
+  height: 60px;
+  border: 2px dashed #4CAF50;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(76, 175, 80, 0.1);
+  transition: all 0.2s ease;
+  margin: 4px 0;
+}
+
+.insertPreview.fullWidth {
+  grid-column: span 2;
+}
+
+.plusSign {
+  color: #4CAF50;
+  font-size: 24px;
+  font-weight: bold;
+}

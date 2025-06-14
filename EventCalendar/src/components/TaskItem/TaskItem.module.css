@@ -1,0 +1,20 @@
+.task {
+  background: white;
+  padding: 12px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  cursor: grab;
+  transition: all 0.2s;
+  height: 60px;
+  display: flex;
+  align-items: center;
+}
+
+.task:active {
+  cursor: grabbing;
+}
+
+.task.dragged {
+  opacity: 0.3;
+  transform: scale(0.95);
+}
