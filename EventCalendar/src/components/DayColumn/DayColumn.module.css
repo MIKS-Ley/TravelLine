@@ -1,0 +1,32 @@
+.day {
+  flex: 1;
+  background: #f5f5f5;
+  padding: 15px;
+  border-radius: 8px;
+  min-height: 200px;
+  min-width: 200px;
+}
+
+.day h2 {
+  margin-top: 0;
+  color: #333;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 10px;
+  text-align: center;
+}
+
+.taskList {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 0;
+  min-height: 100px;
+}
+
+.taskList > * {
+  grid-column: span 1;
+}
+
+.insertPreview {
+  grid-column: span 2;
+}
